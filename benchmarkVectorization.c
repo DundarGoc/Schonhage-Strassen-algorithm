@@ -1,4 +1,4 @@
-#include "include/benchmarkButterfly.h"
+#include "include/benchmarkVectorization.h"
 #include "include/butterfly.h"
 
 /*
@@ -13,8 +13,6 @@
 #define NUMBER_OF_COLUMNS_RESULT 13
 #define LOWER_LIMIT 0.8
 #define UPPER_LIMIT 1.2
-
-
 
 static double timeElapsed;
 static double measurementTimeInSeconds = 0.01;
@@ -121,7 +119,6 @@ void PrintResults(double data[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT])
 			printf(ANSI_COLOR_BLUE "%.2lf  |" ANSI_COLOR_RESET, modAverage[i]);
 		}
 
-
 		for(ulong j = 0; j < NUMBER_OF_COLUMNS_RESULT; ++j)
 		{
 			if(data[i][j] < LOWER_LIMIT)
@@ -158,9 +155,7 @@ void PrintResults(double data[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT])
 	}
 }
 
-
-
-void BenchmarkButterfly(unsigned int modBits, ulong maximumPossibleLength, flint_rand_t state)
+void BenchmarkVectorization(unsigned int modBits, ulong maximumPossibleLength, flint_rand_t state)
 {
 	assert(modBits >= 2);
 	assert(modBits <= 64);
@@ -188,11 +183,9 @@ void BenchmarkButterfly(unsigned int modBits, ulong maximumPossibleLength, flint
 	_nmod_vec_reduce(poly1, poly1, polyLength, modFLINT);
 	_nmod_vec_reduce(poly2, poly2, polyLength, modFLINT);
 
-
 	double t = GetTime();
 	ButterflyInPlace(poly1, poly2, polyLength, modFLINT);
 	timeElapsed += GetTime() - t;
-
 
 	flint_free(poly1);
 	flint_free(poly2);
@@ -207,7 +200,7 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		measurementTimeInSeconds = strtod(argv[1],&ptr);
+		measurementTimeInSeconds = strtod(argv[1], &ptr);
 	}
 
 	FILE *f;
@@ -216,11 +209,9 @@ int main(int argc, char *argv[])
 	flint_randseed(state, time(0), time(0));
 	setbuf(stdout, NULL);
 
-
 	double data[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT];
 	double dataRunOne[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT];
 	ulong numberOfIterationsTable[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT] = {0};
-
 	int currentlyOnRunOne = (f = fopen("data.txt", "r")) == NULL;
 	int currentlyOnRunTwo = !currentlyOnRunOne;
 	if(currentlyOnRunTwo)
@@ -248,7 +239,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-
 	for(unsigned int modBits = 5; modBits <= 60; modBits += 5)
 	{
 		for(ulong idx = 0; idx < NUMBER_OF_COLUMNS_RESULT; ++idx)
@@ -266,7 +256,7 @@ int main(int argc, char *argv[])
 				ulong numberOfIterations = 0;
 				while(GetTime() - startTime < measurementTimeInSeconds)
 				{
-					BenchmarkButterfly(modBits, maximumPossibleLength, state);
+					BenchmarkVectorization(modBits, maximumPossibleLength, state);
 					++numberOfIterations;
 				}
 				numberOfIterationsTable[modBits / 5 - 1][idx] = numberOfIterations;
@@ -276,13 +266,12 @@ int main(int argc, char *argv[])
 			{
 				for(ulong i = 0; i < numberOfIterationsTable[modBits / 5 - 1][idx]; ++i)
 				{
-					BenchmarkButterfly(modBits, maximumPossibleLength, state);
+					BenchmarkVectorization(modBits, maximumPossibleLength, state);
 				}
 				data[modBits / 5 - 1][idx] = timeElapsed;
 			}
 		}
 	}
-
 
 	if(currentlyOnRunOne)
 	{

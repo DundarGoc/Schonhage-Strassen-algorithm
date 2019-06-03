@@ -11,8 +11,8 @@ FLAGS = $(FLAGS_SETTINGS) $(FLAGS_WARNINGS)
 FLAGS_VECTORIZATION = $(FLAGS) -ftree-vectorize
 FLAGS_ASSEMBLY = -masm=intel -S -fno-asynchronous-unwind-tables
 
-FILE = main.c tuning.c SSA.c
-#FILE = benchmarkButterfly.c butterfly.c
+#FILE = main.c tuning.c SSA.c
+FILE = benchmarkVectorization.c butterfly.c
 
 ZN_POLY = -I/home/dundar/local_zn_poly/include -L/home/dundar/local_zn_poly/lib -lzn_poly
 FLINT = -Wl,-rpath=/home/dundar/local_flint/lib -I/home/dundar/local_flint/include -L/home/dundar/local_flint/lib -lflint
@@ -20,13 +20,13 @@ LIB = $(FLINT) $(ZN_POLY) -lm -lgmp
 
 
 .PHONY: all
-all: run
+all: benchmarkVectorization
 
-run: clean
+benchmarkMultiplication: clean
 	@$(COMPILER) $(FLAGS_VECTORIZATION) -o $@ $(FILE) $(LIB)
 	@./$@ $(ALL_ARGUMENTS)
 
-benchmark: clean
+benchmarkVectorization: clean
 	$(COMPILER) $(FLAGS) -o $@ $(FILE) $(LIB)
 	./$@ $(MEASUREMENT_TIME_IN_SECONDS)
 	$(COMPILER) $(FLAGS_VECTORIZATION) -o $@ $(FILE) $(LIB)

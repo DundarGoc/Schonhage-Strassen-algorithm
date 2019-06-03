@@ -7,11 +7,9 @@
  */
 #define CACHE_SIZE_ESTIMATE 32768
 
-
 /*
    My recreation of the zn_poly library but with all irrelevant parts removed. Many functions have also been replaced with similar (often identical) functions from FLINT.
  */
-
 
 /*
    For integers a >= 1 and b >= 1, returns ceil(a / b).
@@ -146,7 +144,6 @@ void PMFVectorTFTHuge(ulong numberOfOutputCoefficients, ulong numberOfInputCoeff
 
 	pmfVector = pmfVectorOriginal;
 	t *= numberOfRows;
-
 
 	// Transform first numberOfCompleteOutputRows rows.
 	for(ulong iRow = 0; iRow < numberOfCompleteOutputRows; ++iRow, pmfVector += skip_U)
@@ -487,7 +484,6 @@ void PMFVectorPointwiseMultiplication(ulong n, nmod_t modFLINT, ulong lgM, ulong
 		p3[pmfLength] = 0;
 	}
 
-
 	temp[2 * pmfLength - 1] = 0;
 
 	for(; i < n; ++i, p3 += skip, p1 += skip, p2 += skip)
@@ -497,7 +493,6 @@ void PMFVectorPointwiseMultiplication(ulong n, nmod_t modFLINT, ulong lgM, ulong
 		MultiplicationInternal(temp, p1 + 1, pmfLength, p2 + 1, pmfLength, 1, modFLINT, wordMod);
 		_nmod_vec_sub(p3 + 1, temp, temp + pmfLength, pmfLength, modFLINT);
 	}
-
 
 	flint_free(temp);
 }
@@ -771,7 +766,6 @@ ulong GetFudgeFactorFromMultiplication(ulong poly1Length, size_t poly2Length, nm
 		return 1;
 	}
 
-
 	ulong modBits = FLINT_BIT_COUNT(modFLINT.n);
 	int ks1Used = poly2Length < tuningModulo[modBits].thresholdKS2;
 	int ks2Used = poly2Length < tuningModulo[modBits].thresholdKS4;
@@ -781,8 +775,6 @@ ulong GetFudgeFactorFromMultiplication(ulong poly1Length, size_t poly2Length, nm
 	{
 		return nmod_neg(wordMod, modFLINT);
 	}
-
-
 
 	return GetFudgeFactorFromTFT(poly1Length, poly2Length, modFLINT, wordMod);
 }

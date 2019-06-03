@@ -1,6 +1,5 @@
 #include "include/butterfly.h"
 
-
 ulong nmodAdd(ulong a, ulong b, nmod_t mod)
 {
 	ulong neg = mod.n - a;
@@ -12,7 +11,6 @@ ulong nmodSub(ulong a, ulong b, nmod_t mod)
 	ulong diff = a - b;
 	return (a < b) ? mod.n + diff : diff;
 }
-
 
 void ButterflyInPlace(ulong *op1, ulong *op2, ulong n, nmod_t modFLINT)
 {

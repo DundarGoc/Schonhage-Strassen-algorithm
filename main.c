@@ -235,7 +235,6 @@ void BenchmarkMultiplication(ulong mod, ulong poly1Length, ulong poly2Length, fl
 	elapsedTime = GetTime() - elapsedTime;
 	timer2 += elapsedTime;
 
-
 	assert(_nmod_vec_equal(polyResult1, polyResult2, polyResultLength));
 
 	flint_free(poly1);
@@ -307,8 +306,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-
-
 	for(ulong modBits = moduloBitsMinimum, row = 0; modBits <= moduloBitsMaximum; modBits += moduloBitsStepSize, ++row)
 	{
 		for(ulong column = 0; column < numberOfColumns; ++column)
@@ -343,7 +340,6 @@ int main(int argc, char *argv[])
 	double totalProgramTime = GetTime() - timer;
 	printf("Total program time: %f\n", totalProgramTime);
 	PrintResults(numberOfRows, numberOfColumns, performanceResults, maximumPossibleLengthAllValues);
-
 
 	flint_free(performanceResults);
 	flint_free(performanceResultsEntries);
