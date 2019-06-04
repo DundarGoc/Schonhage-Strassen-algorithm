@@ -12,7 +12,7 @@ FLAGS_VECTORIZATION = $(FLAGS) -ftree-vectorize
 FLAGS_ASSEMBLY = -masm=intel -S -fno-asynchronous-unwind-tables
 
 #FILE = main.c tuning.c SSA.c
-FILE = benchmarkVectorization.c butterfly.c
+FILE = benchmarkVectorization.c 
 
 ZN_POLY = -I/home/dundar/local_zn_poly/include -L/home/dundar/local_zn_poly/lib -lzn_poly
 FLINT = -Wl,-rpath=/home/dundar/local_flint/lib -I/home/dundar/local_flint/include -L/home/dundar/local_flint/lib -lflint
