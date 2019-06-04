@@ -383,26 +383,12 @@ void PMFVectorITFT(ulong n, int fwd, ulong z, ulong t, ulong lgM, ulong lgK, ptr
 
 void ButterflyInPlace(ulong *op1, ulong *op2, ulong n, nmod_t modFLINT)
 {
-	if(modFLINT.n == FLINT_BITS)
+	for(; n; --n, ++op1, ++op2)
 	{
-		for(; n; --n, ++op1, ++op2)
-		{
-			ulong x = *op1;
-			ulong y = *op2;
-			*op1 = nmod_add(y, x, modFLINT);
-			*op2 = nmod_sub(y, x, modFLINT);
-		}
-	}
-	else
-	{
-		for(; n; --n, ++op1, ++op2)
-		{
-			ulong x = *op1;
-			ulong y = *op2;
-			*op1 = _nmod_add(y, x, modFLINT);
-			*op2 = _nmod_sub(y, x, modFLINT);
-		}
-
+		ulong x = *op1;
+		ulong y = *op2;
+		*op1 = nmod_add(y, x, modFLINT);
+		*op2 = nmod_sub(y, x, modFLINT);
 	}
 }
 void PMFButterfly(ulong *op1, ulong *op2, ulong pmfLength, nmod_t modFLINT)

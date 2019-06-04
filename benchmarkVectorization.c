@@ -2,6 +2,7 @@
 #include <flint/nmod_poly.h>
 #include <sys/time.h>
 #include <time.h>
+#include "include/SSA.h"
 
 /*
    Colored output.
@@ -154,17 +155,6 @@ void PrintResults(double data[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT])
 	else
 	{
 		printf(ANSI_COLOR_BLUE "%.2lf\n\n" ANSI_COLOR_RESET, totalAverage);
-	}
-}
-
-void ButterflyInPlace(ulong *op1, ulong *op2, ulong n, nmod_t modFLINT)
-{
-	for(; n; --n, ++op1, ++op2)
-	{
-		ulong x = *op1;
-		ulong y = *op2;
-		*op1 = nmod_add(y, x, modFLINT);
-		*op2 = nmod_sub(y, x, modFLINT);
 	}
 }
 
