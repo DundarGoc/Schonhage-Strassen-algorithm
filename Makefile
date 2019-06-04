@@ -27,9 +27,9 @@ benchmarkMultiplication: clean
 	@./$@ $(ALL_ARGUMENTS)
 
 benchmarkVectorization: clean
-	$(COMPILER) $(FLAGS) -o $@ $(FILE) $(LIB)
+	@$(COMPILER) $(FLAGS) -o $@ $(FILE) $(LIB)
 	./$@ $(MEASUREMENT_TIME_IN_SECONDS)
-	$(COMPILER) $(FLAGS_VECTORIZATION) -o $@ $(FILE) $(LIB)
+	@$(COMPILER) $(FLAGS_VECTORIZATION) -o $@ $(FILE) $(LIB)
 	./$@ $(MEASUREMENT_TIME_IN_SECONDS)
 
 assembly: clean

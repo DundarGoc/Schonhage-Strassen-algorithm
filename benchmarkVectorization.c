@@ -12,7 +12,7 @@
 #define ANSI_COLOR_BLUE "\x1b[34m"
 #define ANSI_COLOR_RESET "\x1b[0m"
 
-#define BENCHMARK_FUNCTION 2
+#define BENCHMARK_FUNCTION 0
 #define NUMBER_OF_ROWS_RESULT 12
 #define NUMBER_OF_COLUMNS_RESULT 13
 #define LOWER_LIMIT 0.8
@@ -41,6 +41,32 @@ void PrintPolynomial(ulong *poly, ulong length)
 	}
 
 	printf("\n");
+}
+
+void WriteResultsToFile(ulong numberOfRows, ulong numberOfColumns, double data[][13])
+{
+	FILE *f = fopen("data.txt", "w");
+	for(ulong i = 0; i < numberOfRows; ++i)
+	{
+		fprintf(f, "%li ", (i + 1) * 5);
+
+		for(ulong j = 0; j < numberOfColumns; ++j)
+		{
+			fprintf(f, "& %.2lf ", data[i][j]);
+
+			if(j == numberOfColumns - 1)
+			{
+				fprintf(f, " \\\\");
+			}
+		}
+
+		if(i != numberOfRows - 1)
+		{
+			fprintf(f, "\n");
+		}
+	}
+
+	fclose(f);
 }
 
 void PrintCharNTimes(char character, ulong numberOfTimes)
@@ -386,6 +412,7 @@ int main(int argc, char *argv[])
 		}
 
 		PrintResults(benchmarkComparison);
+		WriteResultsToFile(NUMBER_OF_ROWS_RESULT, NUMBER_OF_COLUMNS_RESULT, benchmarkComparison);
 	}
 
 	flint_randclear(state);
