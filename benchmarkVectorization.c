@@ -12,6 +12,7 @@
 #define ANSI_COLOR_BLUE "\x1b[34m"
 #define ANSI_COLOR_RESET "\x1b[0m"
 
+#define BENCHMARK_FUNCTION 2
 #define NUMBER_OF_ROWS_RESULT 12
 #define NUMBER_OF_COLUMNS_RESULT 13
 #define LOWER_LIMIT 0.8
@@ -20,6 +21,8 @@
 static double timeElapsed;
 static double measurementTimeInSeconds = 0.01;
 
+#define CEIL_DIV(a, b) ((((a) - 1) / (b)) + 1)
+
 /*
    Simple custom timer.
  */
@@ -27,7 +30,6 @@ double GetTime(void)
 {
 	struct timeval t;
 	gettimeofday(&t, NULL);
-
 	return t.tv_sec + t.tv_usec * 1e-6;
 }
 
@@ -141,7 +143,19 @@ void PrintResults(double data[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT])
 		putchar('\n');
 	}
 
-	printf("\nThe numbers show how much faster the second implementation is compared to the first one.\n");
+	if(BENCHMARK_FUNCTION == 0)
+	{
+		printf("\nBenchmarking butterfly.");
+	}
+	else if(BENCHMARK_FUNCTION == 1)
+	{
+		printf("\nBenchmarking TFT.");
+	}
+	else
+	{
+		printf("\nBenchmarking ITFT.");
+	}
+	printf("\nThe numbers show how much faster the vectorization is.\n");
 	printf("Average performance increase: ");
 
 	if(totalAverage < LOWER_LIMIT)
@@ -156,6 +170,68 @@ void PrintResults(double data[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT])
 	{
 		printf(ANSI_COLOR_BLUE "%.2lf\n\n" ANSI_COLOR_RESET, totalAverage);
 	}
+}
+
+void BenchmarkITFT(ulong *poly, ulong polyLength, nmod_t modFLINT)
+{
+	ulong lgM, m1, m2, m3, pmfLength;
+
+	for(lgM = 1;; ++lgM)
+	{
+		pmfLength = 1UL << lgM;
+		m1 = CEIL_DIV(polyLength, pmfLength / 2);
+		m2 = CEIL_DIV(polyLength, pmfLength / 2);
+		m3 = m1 + m2 - 1;
+
+		if(m3 <= 2 * pmfLength)
+		{
+			break;
+		}
+	}
+
+	ulong lgK = (m3 > pmfLength) ? (lgM + 1) : lgM;
+	ulong pmfVectorLength = 1UL << lgK;
+	ptrdiff_t pmfLengthWithBias = pmfLength + 1;
+	ulong *pmfVector1 = (ulong *)flint_malloc(sizeof(ulong) * pmfLengthWithBias * pmfVectorLength);
+
+	TransformPolynomialToPMFVector(poly, polyLength, 1, pmfLength, modFLINT, pmfVector1);
+
+	double t = GetTime();
+	PMFVectorITFT(m3, 0, m3, 0, lgM, lgK, pmfLengthWithBias, pmfVector1, modFLINT);
+	timeElapsed += GetTime() - t;
+
+	flint_free(pmfVector1);
+}
+
+void BenchmarkTFT(ulong *poly, ulong polyLength, nmod_t modFLINT)
+{
+	ulong lgM, m1, m2, m3, pmfLength;
+
+	for(lgM = 1;; ++lgM)
+	{
+		pmfLength = 1UL << lgM;
+		m1 = CEIL_DIV(polyLength, pmfLength / 2);
+		m2 = CEIL_DIV(polyLength, pmfLength / 2);
+		m3 = m1 + m2 - 1;
+
+		if(m3 <= 2 * pmfLength)
+		{
+			break;
+		}
+	}
+
+	ulong lgK = (m3 > pmfLength) ? (lgM + 1) : lgM;
+	ulong pmfVectorLength = 1UL << lgK;
+	ptrdiff_t pmfLengthWithBias = pmfLength + 1;
+	ulong *pmfVector1 = (ulong *)flint_malloc(sizeof(ulong) * pmfLengthWithBias * pmfVectorLength);
+
+	TransformPolynomialToPMFVector(poly, polyLength, 1, pmfLength, modFLINT, pmfVector1);
+
+	double t = GetTime();
+	PMFVectorTFT(m3, m1, 0, lgK, lgM, pmfLengthWithBias, pmfVector1, modFLINT);
+	timeElapsed += GetTime() - t;
+
+	flint_free(pmfVector1);
 }
 
 void BenchmarkVectorization(unsigned int modBits, ulong maximumPossibleLength, flint_rand_t state)
@@ -186,9 +262,20 @@ void BenchmarkVectorization(unsigned int modBits, ulong maximumPossibleLength, f
 	_nmod_vec_reduce(poly1, poly1, polyLength, modFLINT);
 	_nmod_vec_reduce(poly2, poly2, polyLength, modFLINT);
 
-	double t = GetTime();
-	ButterflyInPlace(poly1, poly2, polyLength, modFLINT);
-	timeElapsed += GetTime() - t;
+	if(BENCHMARK_FUNCTION == 0)
+	{
+		double t = GetTime();
+		ButterflyInPlace(poly1, poly2, polyLength, modFLINT);
+		timeElapsed += GetTime() - t;
+	}
+	else if(BENCHMARK_FUNCTION == 1)
+	{
+		BenchmarkTFT(poly1, polyLength, modFLINT);
+	}
+	else
+	{
+		BenchmarkITFT(poly1, polyLength, modFLINT);
+	}
 
 	flint_free(poly1);
 	flint_free(poly2);
