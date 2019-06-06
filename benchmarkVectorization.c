@@ -4,14 +4,6 @@
 #include <time.h>
 #include "include/SSA.h"
 
-/*
-   Colored output.
- */
-#define ANSI_COLOR_RED "\x1b[31m"
-#define ANSI_COLOR_GREEN "\x1b[32m"
-#define ANSI_COLOR_BLUE "\x1b[34m"
-#define ANSI_COLOR_RESET "\x1b[0m"
-
 #define BENCHMARK_FUNCTION 0
 #define NUMBER_OF_ROWS_RESULT 12
 #define NUMBER_OF_COLUMNS_RESULT 13
@@ -33,7 +25,7 @@ double GetTime(void)
 	return t.tv_sec + t.tv_usec * 1e-6;
 }
 
-void WriteResultsToFile(ulong numberOfRows, ulong numberOfColumns, double data[][13])
+void WriteResultsToFile(ulong numberOfRows, ulong numberOfColumns, double performanceResults[][13])
 {
 	FILE *f = fopen("data.txt", "w");
 	for(ulong i = 0; i < numberOfRows; ++i)
@@ -42,7 +34,7 @@ void WriteResultsToFile(ulong numberOfRows, ulong numberOfColumns, double data[]
 
 		for(ulong j = 0; j < numberOfColumns; ++j)
 		{
-			fprintf(f, "& %.2lf ", data[i][j]);
+			fprintf(f, "& %.2lf ", performanceResults[i][j]);
 
 			if(j == numberOfColumns - 1)
 			{
@@ -64,6 +56,27 @@ void PrintCharNTimes(char character, ulong numberOfTimes)
 	for(ulong i = 0; i < numberOfTimes; ++i)
 	{
 		putchar(character);
+	}
+}
+
+void PrintInColor(double value)
+{
+	char red[] = "\x1b[31m";
+	char green[] = "\x1b[32m";
+	char blue[] = "\x1b[34m";
+	char reset[] = "\x1b[0m";
+
+	if(value < LOWER_LIMIT)
+	{
+		printf("%s%.2lf%s", red, value, reset);
+	}
+	else if(value > UPPER_LIMIT)
+	{
+		printf("%s%.2lf%s", green, value, reset);
+	}
+	else
+	{
+		printf("%s%.2lf%s", blue, value, reset);
 	}
 }
 
@@ -102,58 +115,28 @@ void PrintResults(double data[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT])
 	}
 
 	putchar('\n');
-	PrintCharNTimes(' ', 7);
+	PrintCharNTimes(' ', 8);
 
 	for(ulong i = 0; i < NUMBER_OF_COLUMNS_RESULT; ++i)
 	{
-		if(degreeAverage[i] < LOWER_LIMIT)
-		{
-			printf(ANSI_COLOR_RED "%.2lf  " ANSI_COLOR_RESET, degreeAverage[i]);
-		}
-		else if(degreeAverage[i] > UPPER_LIMIT)
-		{
-			printf(ANSI_COLOR_GREEN "%.2lf  " ANSI_COLOR_RESET, degreeAverage[i]);
-		}
-		else
-		{
-			printf(ANSI_COLOR_BLUE "%.2lf  " ANSI_COLOR_RESET, degreeAverage[i]);
-		}
+		PrintInColor(degreeAverage[i]);
+		printf("  ");
 	}
 
 	putchar('\n');
 	PrintCharNTimes(' ', 7);
-	PrintCharNTimes('_', 6 * NUMBER_OF_COLUMNS_RESULT - 2);
+	PrintCharNTimes('_', 6 * NUMBER_OF_COLUMNS_RESULT - 1);
 	putchar('\n');
 
 	for(ulong i = 0; i < NUMBER_OF_ROWS_RESULT; ++i)
 	{
-		if(modAverage[i] < LOWER_LIMIT)
-		{
-			printf(ANSI_COLOR_RED "%.2lf  |" ANSI_COLOR_RESET, modAverage[i]);
-		}
-		else if(modAverage[i] > UPPER_LIMIT)
-		{
-			printf(ANSI_COLOR_GREEN "%.2lf  |" ANSI_COLOR_RESET, modAverage[i]);
-		}
-		else
-		{
-			printf(ANSI_COLOR_BLUE "%.2lf  |" ANSI_COLOR_RESET, modAverage[i]);
-		}
+		PrintInColor(modAverage[i]);
+		printf("  | ");
 
 		for(ulong j = 0; j < NUMBER_OF_COLUMNS_RESULT; ++j)
 		{
-			if(data[i][j] < LOWER_LIMIT)
-			{
-				printf(ANSI_COLOR_RED "%.2lf  " ANSI_COLOR_RESET, data[i][j]);
-			}
-			else if(data[i][j] > UPPER_LIMIT)
-			{
-				printf(ANSI_COLOR_GREEN "%.2lf  " ANSI_COLOR_RESET, data[i][j]);
-			}
-			else
-			{
-				printf(ANSI_COLOR_BLUE "%.2lf  " ANSI_COLOR_RESET, data[i][j]);
-			}
+			PrintInColor(data[i][j]);
+			printf("  ");
 		}
 
 		putchar('\n');
@@ -174,18 +157,9 @@ void PrintResults(double data[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT])
 	printf("\nThe numbers show how much faster the vectorization is.\n");
 	printf("Average performance increase: ");
 
-	if(totalAverage < LOWER_LIMIT)
-	{
-		printf(ANSI_COLOR_RED "%.2lf\n\n" ANSI_COLOR_RESET, totalAverage);
-	}
-	else if(totalAverage > UPPER_LIMIT)
-	{
-		printf(ANSI_COLOR_GREEN "%.2lf\n\n" ANSI_COLOR_RESET, totalAverage);
-	}
-	else
-	{
-		printf(ANSI_COLOR_BLUE "%.2lf\n\n" ANSI_COLOR_RESET, totalAverage);
-	}
+	PrintInColor(totalAverage);
+	printf("\n\n");
+
 }
 
 void BenchmarkITFT(ulong *poly, ulong polyLength, nmod_t modFLINT)
