@@ -65,6 +65,6 @@ cppcheck: clean
 	cppcheck --enable=all --suppress=missingIncludeSystem $(FILE)
 
 clean:
-	rm -rf gmon.out callgrind* vgcore* opt*.txt data.txt cachegrind.out* perf.data numberOfIterations.txt \.#* *~ *.s
+	rm -rf gmon.out callgrind* vgcore* opt*.txt data*.txt cachegrind.out* perf.data numberOfIterations.txt \.#* *~ *.s
 	find . -maxdepth 1 -type f -executable -exec rm {} +
 	clear

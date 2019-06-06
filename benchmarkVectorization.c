@@ -25,30 +25,49 @@ double GetTime(void)
 	return t.tv_sec + t.tv_usec * 1e-6;
 }
 
-void WriteResultsToFile(ulong numberOfRows, ulong numberOfColumns, double performanceResults[][13])
+void WriteResultsToFile(double performanceResults[][NUMBER_OF_COLUMNS_RESULT], double modAverage[], double degreeAverage[])
 {
 	FILE *f = fopen("data.txt", "w");
-	for(ulong i = 0; i < numberOfRows; ++i)
+	for(ulong i = 0; i < NUMBER_OF_ROWS_RESULT; ++i)
 	{
 		fprintf(f, "%li ", (i + 1) * 5);
 
-		for(ulong j = 0; j < numberOfColumns; ++j)
+		for(ulong j = 0; j < NUMBER_OF_COLUMNS_RESULT; ++j)
 		{
 			fprintf(f, "& %.2lf ", performanceResults[i][j]);
-
-			if(j == numberOfColumns - 1)
-			{
-				fprintf(f, " \\\\");
-			}
 		}
 
-		if(i != numberOfRows - 1)
+		fprintf(f, " \\\\\n");
+	}
+
+	fclose(f);
+
+	f = fopen("data_modAverage.txt", "w");
+	for(ulong i = 0; i < NUMBER_OF_ROWS_RESULT; ++i)
+	{
+		fprintf(f, "%.2lf  ", modAverage[i]);
+
+		if(i != NUMBER_OF_ROWS_RESULT - 1)
 		{
-			fprintf(f, "\n");
+			fprintf(f, "&");
 		}
 	}
 
 	fclose(f);
+
+	f = fopen("data_degreeAverage.txt", "w");
+	for(ulong i = 0; i < NUMBER_OF_COLUMNS_RESULT; ++i)
+	{
+		fprintf(f, "%.2lf  ", degreeAverage[i]);
+
+		if(i != NUMBER_OF_COLUMNS_RESULT - 1)
+		{
+			fprintf(f, "&");
+		}
+	}
+
+	fclose(f);
+
 }
 
 void PrintCharNTimes(char character, ulong numberOfTimes)
@@ -68,59 +87,35 @@ void PrintInColor(double value)
 
 	if(value < LOWER_LIMIT)
 	{
-		printf("%s%.2lf%s", red, value, reset);
+		printf("%s%.2lf%s  ", red, value, reset);
 	}
 	else if(value > UPPER_LIMIT)
 	{
-		printf("%s%.2lf%s", green, value, reset);
+		printf("%s%.2lf%s  ", green, value, reset);
 	}
 	else
 	{
-		printf("%s%.2lf%s", blue, value, reset);
+		printf("%s%.2lf%s  ", blue, value, reset);
 	}
 }
 
-void PrintResults(double data[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT])
+void PrintResults(double performanceResult[][NUMBER_OF_COLUMNS_RESULT], double modAverage[], double degreeAverage[])
 {
 	double totalAverage = 0;
-	double modAverage[NUMBER_OF_ROWS_RESULT];
-	double degreeAverage[NUMBER_OF_COLUMNS_RESULT];
-
-	for(ulong i = 0; i < NUMBER_OF_ROWS_RESULT; ++i)
-	{
-		modAverage[i] = 0;
-
-		for(ulong j = 0; j < NUMBER_OF_COLUMNS_RESULT; ++j)
-		{
-			modAverage[i] += data[i][j] / NUMBER_OF_COLUMNS_RESULT;
-		}
-	}
-
-	for(ulong i = 0; i < NUMBER_OF_COLUMNS_RESULT; ++i)
-	{
-		degreeAverage[i] = 0;
-
-		for(ulong j = 0; j < NUMBER_OF_ROWS_RESULT; ++j)
-		{
-			degreeAverage[i] += data[j][i] / NUMBER_OF_ROWS_RESULT;
-		}
-	}
 
 	for(ulong i = 0; i < NUMBER_OF_ROWS_RESULT; ++i)
 	{
 		for(ulong j = 0; j < NUMBER_OF_COLUMNS_RESULT; ++j)
 		{
-			totalAverage += data[i][j] / (double)(NUMBER_OF_ROWS_RESULT * NUMBER_OF_COLUMNS_RESULT);
+			totalAverage += performanceResult[i][j] / (double)(NUMBER_OF_ROWS_RESULT * NUMBER_OF_COLUMNS_RESULT);
 		}
 	}
 
-	putchar('\n');
-	PrintCharNTimes(' ', 8);
+	printf("\n        ");
 
 	for(ulong i = 0; i < NUMBER_OF_COLUMNS_RESULT; ++i)
 	{
 		PrintInColor(degreeAverage[i]);
-		printf("  ");
 	}
 
 	putchar('\n');
@@ -131,12 +126,11 @@ void PrintResults(double data[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT])
 	for(ulong i = 0; i < NUMBER_OF_ROWS_RESULT; ++i)
 	{
 		PrintInColor(modAverage[i]);
-		printf("  | ");
+		printf("| ");
 
 		for(ulong j = 0; j < NUMBER_OF_COLUMNS_RESULT; ++j)
 		{
-			PrintInColor(data[i][j]);
-			printf("  ");
+			PrintInColor(performanceResult[i][j]);
 		}
 
 		putchar('\n');
@@ -365,18 +359,36 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		double benchmarkComparison[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT];
+		double performanceResult[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT];
+		double modAverage[NUMBER_OF_ROWS_RESULT] = {0};
+		double degreeAverage[NUMBER_OF_COLUMNS_RESULT] = {0};
 
 		for(ulong i = 0; i < NUMBER_OF_ROWS_RESULT; ++i)
 		{
 			for(ulong j = 0; j < NUMBER_OF_COLUMNS_RESULT; ++j)
 			{
-				benchmarkComparison[i][j] = dataRunOne[i][j] / data[i][j];
+				performanceResult[i][j] = dataRunOne[i][j] / data[i][j];
 			}
 		}
 
-		PrintResults(benchmarkComparison);
-		WriteResultsToFile(NUMBER_OF_ROWS_RESULT, NUMBER_OF_COLUMNS_RESULT, benchmarkComparison);
+		for(ulong i = 0; i < NUMBER_OF_ROWS_RESULT; ++i)
+		{
+			for(ulong j = 0; j < NUMBER_OF_COLUMNS_RESULT; ++j)
+			{
+				modAverage[i] += performanceResult[i][j] / NUMBER_OF_COLUMNS_RESULT;
+			}
+		}
+
+		for(ulong i = 0; i < NUMBER_OF_COLUMNS_RESULT; ++i)
+		{
+			for(ulong j = 0; j < NUMBER_OF_ROWS_RESULT; ++j)
+			{
+				degreeAverage[i] += performanceResult[j][i] / NUMBER_OF_ROWS_RESULT;
+			}
+		}
+
+		PrintResults(performanceResult, modAverage, degreeAverage);
+		WriteResultsToFile(performanceResult, modAverage, degreeAverage);
 	}
 
 	flint_randclear(state);
