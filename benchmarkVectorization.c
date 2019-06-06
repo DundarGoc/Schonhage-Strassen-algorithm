@@ -33,16 +33,6 @@ double GetTime(void)
 	return t.tv_sec + t.tv_usec * 1e-6;
 }
 
-void PrintPolynomial(ulong *poly, ulong length)
-{
-	for(ulong i = 0; i < length; ++i)
-	{
-		printf("%lu ", poly[i]);
-	}
-
-	printf("\n");
-}
-
 void WriteResultsToFile(ulong numberOfRows, ulong numberOfColumns, double data[][13])
 {
 	FILE *f = fopen("data.txt", "w");
