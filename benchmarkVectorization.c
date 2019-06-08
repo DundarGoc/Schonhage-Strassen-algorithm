@@ -2,7 +2,8 @@
 #include <flint/nmod_poly.h>
 #include <sys/time.h>
 #include <time.h>
-#include "include/SSA.h"
+#include <math.h>
+#include "SSA.h"
 
 #define BENCHMARK_FUNCTION 0
 #define NUMBER_OF_ROWS_RESULT 12
@@ -25,9 +26,11 @@ double GetTime(void)
 	return t.tv_sec + t.tv_usec * 1e-6;
 }
 
-void WriteResultsToFile(double performanceResults[][NUMBER_OF_COLUMNS_RESULT], double modAverage[], double degreeAverage[])
+void WriteResultsToFile(double performanceResults[][NUMBER_OF_COLUMNS_RESULT], double modAverage[], double degreeAverage[], double totalAverage, double maxRatio, double minRatio,
+                        double maxModRatio, double minModRatio, double maxDegreeRatio, double minDegreeRatio)
 {
 	FILE *f = fopen("data.txt", "w");
+	fprintf(f, "Performance results:\n");
 	for(ulong i = 0; i < NUMBER_OF_ROWS_RESULT; ++i)
 	{
 		fprintf(f, "%li ", (i + 1) * 5);
@@ -40,9 +43,7 @@ void WriteResultsToFile(double performanceResults[][NUMBER_OF_COLUMNS_RESULT], d
 		fprintf(f, " \\\\\n");
 	}
 
-	fclose(f);
-
-	f = fopen("data_modAverage.txt", "w");
+	fprintf(f, "\nModulo average:\n");
 	for(ulong i = 0; i < NUMBER_OF_ROWS_RESULT; ++i)
 	{
 		fprintf(f, "%.2lf  ", modAverage[i]);
@@ -53,9 +54,7 @@ void WriteResultsToFile(double performanceResults[][NUMBER_OF_COLUMNS_RESULT], d
 		}
 	}
 
-	fclose(f);
-
-	f = fopen("data_degreeAverage.txt", "w");
+	fprintf(f, "\n\nDegree average:\n");
 	for(ulong i = 0; i < NUMBER_OF_COLUMNS_RESULT; ++i)
 	{
 		fprintf(f, "%.2lf  ", degreeAverage[i]);
@@ -65,6 +64,16 @@ void WriteResultsToFile(double performanceResults[][NUMBER_OF_COLUMNS_RESULT], d
 			fprintf(f, "&");
 		}
 	}
+
+	fprintf(f, "\n\nTotal Average Ratio: %f", totalAverage);
+	fprintf(f, "\nMax Ratio: %f", maxRatio);
+	fprintf(f, "\nMin Ratio: %f", minRatio);
+
+	fprintf(f, "\nMax Mod Ratio: %f", maxModRatio);
+	fprintf(f, "\nMin Mod Ratio: %f", minModRatio);
+
+	fprintf(f, "\nMax Degree Ratio: %f", maxDegreeRatio);
+	fprintf(f, "\nMin Degree Ratio: %f", minDegreeRatio);
 
 	fclose(f);
 
@@ -99,17 +108,8 @@ void PrintInColor(double value)
 	}
 }
 
-void PrintResults(double performanceResult[][NUMBER_OF_COLUMNS_RESULT], double modAverage[], double degreeAverage[])
+void PrintResults(double performanceResult[][NUMBER_OF_COLUMNS_RESULT], double modAverage[], double degreeAverage[], double totalAverage)
 {
-	double totalAverage = 0;
-
-	for(ulong i = 0; i < NUMBER_OF_ROWS_RESULT; ++i)
-	{
-		for(ulong j = 0; j < NUMBER_OF_COLUMNS_RESULT; ++j)
-		{
-			totalAverage += performanceResult[i][j] / (double)(NUMBER_OF_ROWS_RESULT * NUMBER_OF_COLUMNS_RESULT);
-		}
-	}
 
 	printf("\n        ");
 
@@ -149,7 +149,7 @@ void PrintResults(double performanceResult[][NUMBER_OF_COLUMNS_RESULT], double m
 		printf("\nBenchmarking ITFT.");
 	}
 	printf("\nThe numbers show how much faster the vectorization is.\n");
-	printf("Average performance increase: ");
+	printf("Total Average Ratio: ");
 
 	PrintInColor(totalAverage);
 	printf("\n\n");
@@ -360,14 +360,23 @@ int main(int argc, char *argv[])
 	else
 	{
 		double performanceResult[NUMBER_OF_ROWS_RESULT][NUMBER_OF_COLUMNS_RESULT];
+		double totalAverage = 0;
+		double maxRatio = 0;
+		double minRatio = INFINITY;
 		double modAverage[NUMBER_OF_ROWS_RESULT] = {0};
+		double maxModRatio = 0;
+		double minModRatio = INFINITY;
 		double degreeAverage[NUMBER_OF_COLUMNS_RESULT] = {0};
+		double maxDegreeRatio = 0;
+		double minDegreeRatio = INFINITY;
 
 		for(ulong i = 0; i < NUMBER_OF_ROWS_RESULT; ++i)
 		{
 			for(ulong j = 0; j < NUMBER_OF_COLUMNS_RESULT; ++j)
 			{
 				performanceResult[i][j] = dataRunOne[i][j] / data[i][j];
+				maxRatio = FLINT_MAX(maxRatio, performanceResult[i][j]);
+				minRatio = FLINT_MIN(minRatio, performanceResult[i][j]);
 			}
 		}
 
@@ -376,6 +385,8 @@ int main(int argc, char *argv[])
 			for(ulong j = 0; j < NUMBER_OF_COLUMNS_RESULT; ++j)
 			{
 				modAverage[i] += performanceResult[i][j] / NUMBER_OF_COLUMNS_RESULT;
+				maxModRatio = FLINT_MAX(maxModRatio, modAverage[i]);
+				minModRatio = FLINT_MIN(minModRatio, modAverage[i]);
 			}
 		}
 
@@ -384,11 +395,21 @@ int main(int argc, char *argv[])
 			for(ulong j = 0; j < NUMBER_OF_ROWS_RESULT; ++j)
 			{
 				degreeAverage[i] += performanceResult[j][i] / NUMBER_OF_ROWS_RESULT;
+				maxDegreeRatio = FLINT_MAX(maxDegreeRatio, degreeAverage[i]);
+				minDegreeRatio = FLINT_MIN(minDegreeRatio, degreeAverage[i]);
 			}
 		}
 
-		PrintResults(performanceResult, modAverage, degreeAverage);
-		WriteResultsToFile(performanceResult, modAverage, degreeAverage);
+		for(ulong i = 0; i < NUMBER_OF_ROWS_RESULT; ++i)
+		{
+			for(ulong j = 0; j < NUMBER_OF_COLUMNS_RESULT; ++j)
+			{
+				totalAverage += performanceResult[i][j] / (double)(NUMBER_OF_ROWS_RESULT * NUMBER_OF_COLUMNS_RESULT);
+			}
+		}
+
+		PrintResults(performanceResult, modAverage, degreeAverage, totalAverage);
+		WriteResultsToFile(performanceResult, modAverage, degreeAverage, totalAverage, maxRatio, minRatio, maxModRatio, minModRatio, maxDegreeRatio, minDegreeRatio);
 	}
 
 	flint_randclear(state);

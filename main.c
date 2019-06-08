@@ -1,7 +1,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <zn_poly/zn_poly.h>
-#include "include/SSA.h"
+#include "SSA.h"
 
 /*
    Choose benchmark style

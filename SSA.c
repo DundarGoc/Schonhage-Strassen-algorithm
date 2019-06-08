@@ -1,4 +1,4 @@
-#include "include/SSA.h"
+#include "SSA.h"
 
 /*
    A rough estimate of the L1 cache size in bytes. This is to take advantage of the cache by switching from the recursive Truncated Fourier Transform to an iterative version once the input size
