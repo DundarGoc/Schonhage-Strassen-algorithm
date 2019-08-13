@@ -1,8 +1,3 @@
-MEASUREMENT_TIME_IN_SECONDS = 0.001
-CHOOSE_FUNCTION_1 = 1  #0 - SSA, 1 - FLINT, 2 - zn_poly
-CHOOSE_FUNCTION_2 = 0
-ALL_ARGUMENTS = $(MEASUREMENT_TIME_IN_SECONDS) $(CHOOSE_FUNCTION_1) $(CHOOSE_FUNCTION_2)
-
 COMPILER = gcc
 
 FLAGS_WARNINGS = -Wextra -Wall -Wfloat-equal -Wundef -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Waggregate-return -Wformat=2 -Wno-unknown-pragmas 
@@ -11,29 +6,18 @@ FLAGS = $(FLAGS_SETTINGS) $(FLAGS_WARNINGS)
 FLAGS_VECTORIZATION = $(FLAGS) -ftree-vectorize
 FLAGS_ASSEMBLY = -masm=intel -S -fno-asynchronous-unwind-tables
 
-#FILE = main.c tuning.c SSA.c
-FILE = benchmarkVectorization.c tuning.c SSA.c
-
-ZN_POLY = -I/home/dundar/local_zn_poly/include -L/home/dundar/local_zn_poly/lib -lzn_poly
-FLINT = -Wl,-rpath=/home/dundar/local_flint/lib -I/home/dundar/local_flint/include -L/home/dundar/local_flint/lib -lflint
-LIB = $(FLINT) $(ZN_POLY) -lm -lgmp
-
+FILE = main.c
+LIB = -lm -lgmp
 
 .PHONY: all
-all: benchmarkVectorization
+all: run
 
-benchmarkMultiplication: clean
+run: clean
 	@$(COMPILER) $(FLAGS_VECTORIZATION) -o $@ $(FILE) $(LIB)
 	@./$@ $(ALL_ARGUMENTS)
 
-benchmarkVectorization: clean
-	@$(COMPILER) $(FLAGS) -o $@ $(FILE) $(LIB)
-	./$@ $(MEASUREMENT_TIME_IN_SECONDS)
-	@$(COMPILER) $(FLAGS_VECTORIZATION) -o $@ $(FILE) $(LIB)
-	./$@ $(MEASUREMENT_TIME_IN_SECONDS)
-
 assembly: clean
-	$(COMPILER) $(FLAGS_VECTORIZATION) $(FLAGS_ASSEMBLY) -fverbose-asm	 $(FILE) $(LIB)
+	$(COMPILER) $(FLAGS_VECTORIZATION) $(FLAGS_ASSEMBLY) -fverbose-asm $(FILE) $(LIB)
 
 valgrind: clean
 	reset
