@@ -10,7 +10,7 @@ FILE = main.c
 LIB = -lm -lgmp
 
 .PHONY: all
-all: run
+all: assembly
 
 run: clean
 	@$(COMPILER) $(FLAGS_VECTORIZATION) -o $@ $(FILE) $(LIB)
