@@ -19,6 +19,11 @@ int main(){
     c[i]=a[i]-b[i];
   }
 
+  for(int i=0; i<8; ++i){
+    printf("%i\n",c[i]);
+  }
+
+
   free(a);
   free(b);
   free(c);
