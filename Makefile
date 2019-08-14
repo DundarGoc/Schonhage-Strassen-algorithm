@@ -10,7 +10,10 @@ FILE = main.c
 LIB = -lm -lgmp
 
 .PHONY: all
-all: assembly
+all: assembly open
+
+open:
+	nvim main.s
 
 run: clean
 	@$(COMPILER) $(FLAGS_VECTORIZATION) -o $@ $(FILE) $(LIB)
