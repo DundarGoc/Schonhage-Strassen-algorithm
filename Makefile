@@ -10,7 +10,7 @@ FILE = main.c
 LIB = -lm -lgmp
 
 .PHONY: all
-all: assembly open
+all: run
 
 open:
 	nvim main.s
