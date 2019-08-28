@@ -1,7 +1,7 @@
 COMPILER = gcc
 
 FLAGS_WARNINGS = -Wextra -Wall -Wfloat-equal -Wundef -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Waggregate-return -Wformat=2 -Wno-unknown-pragmas 
-FLAGS_SETTINGS = -O2 -march=native -pipe -DNDEBUG
+FLAGS_SETTINGS = -O2 -march=native
 FLAGS = $(FLAGS_SETTINGS) $(FLAGS_WARNINGS)
 FLAGS_VECTORIZATION = $(FLAGS) -ftree-vectorize
 FLAGS_ASSEMBLY = -masm=intel -S -fno-asynchronous-unwind-tables
