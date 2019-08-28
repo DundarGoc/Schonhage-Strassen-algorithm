@@ -3,29 +3,13 @@
 #include <stdlib.h>
 
 int main(){
+  int const a[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+  int const b[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+  int c[8];
 
-  srand(time(NULL));
+  sub_novec(c,a,b);
 
-  int *a = malloc(sizeof(int) * 8);
-  int *b = malloc(sizeof(int) * 8);
-  int *c = malloc(sizeof(int) * 8);
+  printf("%i %i %i %i %i %i %i %i\n", c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7]);
 
-  for(int i=0; i<8; ++i){
-    a[i]=rand()%10;
-    b[i]=rand()%10;
-  }
-
-  for(int i=0; i<8; ++i){
-    c[i]=a[i]-b[i];
-  }
-
-  for(int i=0; i<8; ++i){
-    printf("%i\n",c[i]);
-  }
-
-
-  free(a);
-  free(b);
-  free(c);
-
+  return 0;
 }
