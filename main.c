@@ -2,6 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void
+sub_novec(
+    int c[],
+    int const a[],
+    int const b[]
+    );
+
 int main(){
   int const a[8] = {0, 1, 2, 3, 4, 5, 6, 7};
   int const b[8] = {0, 1, 2, 3, 4, 5, 6, 7};
