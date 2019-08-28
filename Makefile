@@ -4,7 +4,6 @@ FLAGS_WARNINGS = -Wextra -Wall -Wfloat-equal -Wundef -Wshadow -Wpointer-arith -W
 FLAGS = $(FLAGS_WARNINGS) -O2 -march=native -ftree-vectorize
 FLAGS_ASSEMBLY = -masm=intel -S -fno-asynchronous-unwind-tables
 
-FILE = main.c
 LIB = -lm -lgmp
 
 .PHONY: all
