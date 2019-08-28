@@ -1,12 +1,6 @@
 #include "immintrin.h"
 
-void
-sub_vec(
-    int c[],
-    int const a[],
-    int const b[]
-    )
-{
+void sub_vec(int c[], int const a[], int const b[]) {
   __m256i ar = _mm256_loadu_si256((__m256i const*)a);
   __m256i br = _mm256_loadu_si256((__m256i const*)b);
 
