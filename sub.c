@@ -1,5 +1,5 @@
 void
-sub_novec(
+sub(
     int c[],
     int const a[],
     int const b[]

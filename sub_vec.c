@@ -1,7 +1,7 @@
 #include "immintrin.h"
 
 void
-test(
+sub_vec(
     int c[],
     int const a[],
     int const b[]
