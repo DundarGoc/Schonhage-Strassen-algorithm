@@ -16,6 +16,8 @@ open:
 	nvim main.s
 
 run: clean
+	gcc -march=native -O3 test.c sub.c -o test
+	gcc -march=native -O3 -S sub.c
 	@$(COMPILER) $(FLAGS_VECTORIZATION) -o $@ $(FILE) $(LIB)
 	@./$@ $(ALL_ARGUMENTS)
 
