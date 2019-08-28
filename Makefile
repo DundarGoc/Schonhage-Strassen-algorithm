@@ -11,9 +11,8 @@ LIB = -lm -lgmp
 all: run
 
 run: clean
-	gcc -march=native -O3 $(FLAGS_ASSEMBLY) sub.c
-	@$(COMPILER) $(FLAGS) -o $@ $(FILE) $(LIB)
-	@./$@
+	$(COMPILER) $(FLAGS) $(FLAGS_ASSEMBLY) sub.c
+	$(COMPILER) $(FLAGS) $(FLAGS_ASSEMBLY) main.c
 
 assembly: clean
 	$(COMPILER) $(FLAGS) $(FLAGS_ASSEMBLY) -fverbose-asm $(FILE) $(LIB)
