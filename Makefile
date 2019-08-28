@@ -11,8 +11,8 @@ LIB = -lm -lgmp
 all: run
 
 run: clean
+	$(COMPILER) $(FLAGS) $(FLAGS_ASSEMBLY) sub_vec.c
 	$(COMPILER) $(FLAGS) $(FLAGS_ASSEMBLY) sub.c
-	$(COMPILER) $(FLAGS) $(FLAGS_ASSEMBLY) sub_novec.c
 
 assembly: clean
 	$(COMPILER) $(FLAGS) $(FLAGS_ASSEMBLY) -fverbose-asm $(FILE) $(LIB)
